@@ -1,15 +1,16 @@
-require('dotenv').config();
-require('express-async-errors');
-const express = require('express');
-const cors = require('cors');
-const { ClerkExpressRequireAuth } = require('@clerk/clerk-sdk-node');
+require("dotenv").config();
+require("express-async-errors");
+const express = require("express");
+const cors = require("cors");
+const { ClerkExpressRequireAuth } = require("@clerk/clerk-sdk-node");
 
-const categoryRoutes = require('./routes/category');
-const subcategoryRoutes = require('./routes/subcategory');
-const expenseRoutes = require('./routes/expensesroute');
-const bankAccountRoutes = require('./routes/bankaccounts');
-const errorHandler = require('./middleware/errorHandler');
-const syncUser = require('./middleware/syncUser');
+const categoryRoutes = require("./routes/category");
+const subcategoryRoutes = require("./routes/subcategory");
+const expenseRoutes = require("./routes/expensesroute");
+const bankAccountRoutes = require("./routes/bankaccounts");
+const transactionRoutes = require("./routes/transactions");
+const errorHandler = require("./middleware/errorHandler");
+const syncUser = require("./middleware/syncUser");
 
 const app = express();
 
@@ -23,7 +24,11 @@ app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
 
   // Log request
-  console.log(`[${timestamp}] ${req.method} ${req.originalUrl} - IP: ${req.ip || req.connection.remoteAddress}`);
+  console.log(
+    `[${timestamp}] ${req.method} ${req.originalUrl} - IP: ${
+      req.ip || req.connection.remoteAddress
+    }`
+  );
 
   // Log request headers (excluding sensitive ones)
   const safeHeaders = { ...req.headers };
@@ -32,7 +37,7 @@ app.use((req, res, next) => {
   console.log(`[${timestamp}] Headers:`, JSON.stringify(safeHeaders, null, 2));
 
   // Log request body for POST/PUT/PATCH requests (excluding sensitive data)
-  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+  if (["POST", "PUT", "PATCH"].includes(req.method)) {
     const safeBody = { ...req.body };
     // Remove sensitive fields if any
     delete safeBody.password;
@@ -42,9 +47,11 @@ app.use((req, res, next) => {
 
   // Override res.end to log response
   const originalEnd = res.end;
-  res.end = function(chunk, encoding) {
+  res.end = function (chunk, encoding) {
     const duration = Date.now() - start;
-    console.log(`[${timestamp}] Response: ${res.statusCode} - Duration: ${duration}ms`);
+    console.log(
+      `[${timestamp}] Response: ${res.statusCode} - Duration: ${duration}ms`
+    );
 
     // Log response body for errors
     if (res.statusCode >= 400 && chunk) {
@@ -63,15 +70,16 @@ app.use((req, res, next) => {
 });
 
 // Health check route
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Expense Tracker API is running' });
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", message: "Expense Tracker API is running" });
 });
 
 // Protected routes - all routes require Clerk authentication
-app.use('/api/categories', ClerkExpressRequireAuth(), syncUser, categoryRoutes);
-app.use('/api/subcategories', ClerkExpressRequireAuth(), syncUser, subcategoryRoutes);
-app.use('/api/expenses', ClerkExpressRequireAuth(), syncUser, expenseRoutes);
-app.use('/api/bank-accounts', ClerkExpressRequireAuth(), syncUser, bankAccountRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/subcategories", subcategoryRoutes);
+app.use("/api/expenses", expenseRoutes);
+app.use("/api/bank-accounts", bankAccountRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
