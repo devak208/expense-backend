@@ -1,72 +1,78 @@
 # Expense Tracker Backend
 
-A Node.js backend for expense tracking with Clerk authentication and PostgreSQL database using Prisma ORM.
+Express.js backend with TypeScript, Clerk authentication, and Prisma ORM.
 
-## Setup Instructions
+## Quick Start
 
-### 1. Install Dependencies
 ```bash
+# 1. Install dependencies
 npm install
-```
 
-### 2. Environment Variables
-Update the `.env` file with your database URL and Clerk keys:
-```
-DATABASE_URL="postgresql://username:password@localhost:5432/expense_tracker?schema=public"
-EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-EXPO_PUBLIC_CLERK_FRONTEND_API=your_clerk_frontend_api
+# 2. Create .env file with these variables:
+PORT=6000
+NODE_ENV=development
+DATABASE_URL="postgresql://username:password@localhost:5432/expense_tracker"
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 CLERK_SECRET_KEY=your_clerk_secret_key
-```
+FRONTEND_URL=http://localhost:8081
 
-### 3. Database Setup
-```bash
-# Generate Prisma client
-npx prisma generate
+# 3. Setup database
+npm run prisma:generate
+npm run prisma:migrate
 
-# Run database migration
-npx prisma migrate dev --name init
-```
-
-### 4. Start the Server
-```bash
-# Development mode
+# 4. Start server
 npm run dev
-
-# Production mode
-npm start
 ```
 
-The server will run on `http://localhost:3000`
+## Tech Stack
 
-## API Documentation
+- Express.js + TypeScript
+- Clerk Authentication
+- Prisma ORM + PostgreSQL
+- Auto user sync on login
 
-See `API_DOCUMENTATION.md` for detailed API endpoints and examples.
+## API Endpoints
 
-## Postman Collection
+### Public
 
-Import `Expense_Tracker_API.postman_collection.json` into Postman for testing.
+- `GET /` - API info
+- `GET /api/health` - Health check
 
-### Postman Setup
-1. Import the collection
-2. Set environment variables:
-   - `base_url`: `http://localhost:3000`
-   - `auth_token`: Your Clerk JWT token
-3. All requests include the Authorization header automatically
+### Protected (requires auth token)
 
-## Database Schema
+- `GET /api/users/me` - Get current user
+- `PUT /api/users/me` - Update profile
+- `GET /api/users/stats` - User stats
 
-- **Users**: Synced from Clerk authentication
-- **Categories**: User-defined expense categories
-- **Subcategories**: Nested under categories
-- **Bank Accounts**: User's financial accounts with balance tracking
-- **Expenses**: Individual expense records with automatic balance updates
+## Scripts
 
-## Features
+```bash
+npm run dev              # Start dev server
+npm run build            # Build for production
+npm start                # Start production server
+npm run prisma:generate  # Generate Prisma Client
+npm run prisma:migrate   # Run migrations
+npm run prisma:studio    # Open database GUI
+```
 
-- 🔐 Clerk authentication integration
-- 💾 PostgreSQL database with Prisma ORM
-- 🔄 Automatic user synchronization
-- 💰 Real-time balance updates
-- 📊 Expense statistics and filtering
-- 🏷️ Tagging system for expenses
-- 📱 RESTful API design
+## Project Structure
+
+```
+src/
+├── config/          # Database & environment config
+├── middleware/      # Auth & error handling
+├── routes/          # API routes
+├── types/           # TypeScript types
+└── index.ts         # Server entry point
+```
+
+## Get Clerk Keys
+
+1. Go to https://dashboard.clerk.com
+2. Create/select your app
+3. Copy API keys from dashboard
+4. Add to `.env` file
+
+---
+
+Built with Express, TypeScript, Clerk & Prisma

@@ -1,8 +1,4 @@
 // This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -14,103 +10,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid())
+  clerkId       String   @unique
+  email         String   @unique
+  firstName     String?
+  lastName      String?
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  categories    Category[]
-  subcategories Subcategory[]
-  expenses      Expense[]
-  bankAccounts  BankAccount[]
-  transactions  Transaction[]
-}
-
-model Category {
-  id        String   @id @default(cuid())
-  name      String
-  description String?
-  icon      String   @default("📁")
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  subcategories Subcategory[]
-  expenses      Expense[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Subcategory {
-  id         String   @id @default(cuid())
-  name       String
-  description String?
-  icon       String   @default("📄")
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  expenses   Expense[]
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model BankAccount {
-  id        String   @id @default(cuid())
-  name      String
-  accountNumber String?
-  bankName  String
-  accountType String @default("savings")
-  balance   Float    @default(0)
-  currency  String   @default("USD")
-  isActive  Boolean  @default(true)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  expenses  Expense[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Expense {
-  id             String   @id @default(cuid())
-  amount         Float
-  description    String?
-  date           DateTime
-  paymentMethod  String   @default("cash")
-  tags           String[] @default([])
-  categoryId     String
-  category       Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  subcategoryId  String?
-  subcategory    Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
-  bankAccountId  String?
-  bankAccount    BankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
-
-model Transaction {
-  id          String   @id @default(cuid())
-  type        String   // "income" or "expense"
-  amount      Float
-  category    String
-  description String?
-  date        DateTime
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([userId, date])
-  @@index([userId, type])
+  @@map("users")
 }
