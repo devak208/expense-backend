@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { clerkClient } from "@clerk/express";
-import prisma from "../config/database";
+import prisma from "../configs/database";
 
 /**
  * Middleware to sync Clerk user data with database
@@ -8,16 +8,31 @@ import prisma from "../config/database";
  */
 export const syncUserMiddleware = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     // Get user ID from Clerk auth (use as function)
+    // Clerk's clerkMiddleware() has already verified the Bearer token
+    // and decoded it to extract userId, sessionId, etc.
     const auth = req.auth();
     const userId = auth?.userId;
+    const sessionId = auth?.sessionId;
 
-    if (!userId) {
-      return next();
+    // Debug: Show what Clerk extracted from the JWT token
+    console.log("🔍 Clerk JWT Verification:");
+    console.log("  - Bearer Token:", req.headers.authorization || "None");
+    console.log("  - Decoded userId:", userId || "None");
+    console.log("  - sessionId:", sessionId || "None");
+
+    if (!userId || !sessionId) {
+      console.log("⚠️  No userId or sessionId found");
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized - Please sign in to access this resource",
+        error: "AUTHENTICATION_REQUIRED",
+      });
+      return;
     }
 
     // Check if user exists in database

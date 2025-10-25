@@ -1,11 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
-import { env } from "./config/env";
-import { syncUserMiddleware } from "./middleware/syncUser";
-import { errorHandler } from "./middleware/errorHandler";
+import { env } from "./configs/env";
+import { syncUserMiddleware } from "./middlewares/syncUser";
+import { errorHandler } from "./middlewares/errorHandler";
 import indexRoute from "./routes/indexRoute";
-import prisma from "./config/database";
+import prisma from "./configs/database";
 
 // Initialize Express app
 const app: Application = express();
@@ -31,38 +31,12 @@ app.get("/", (_req, res) => {
     success: true,
     message: "Expense Tracker API",
     version: "1.0.0",
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Protected routes - apply auth and sync middleware
-app.use(
-  "/api",
-  (req: Request, res: Response, next: NextFunction) => {
-    // Check if user is authenticated (use req.auth() as function)
-    const auth = req.auth();
-    const authHeader = req.headers.authorization;
-
-    console.log("🔍 Auth check:");
-    console.log("  - Auth header:", authHeader ? "Present" : "Missing");
-    if (authHeader) {
-      console.log("  - Header value:", authHeader.substring(0, 50) + "...");
-    }
-    console.log("  - User ID:", auth?.userId || "None");
-    console.log("  - Session ID:", auth?.sessionId || "None");
-
-    if (!auth?.userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized - Please sign in to access this resource",
-        error: "AUTHENTICATION_REQUIRED",
-      });
-    }
-
-    // User is authenticated, proceed with sync
-    return syncUserMiddleware(req, res, next);
-  },
-  indexRoute
-);
+app.use("/api", syncUserMiddleware, indexRoute);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
