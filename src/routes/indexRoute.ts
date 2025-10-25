@@ -1,10 +1,7 @@
 import { Router } from "express";
-import userRoutes from "./userRoutes";
+import userRoutes from "./user/userRoutes";
 
 const router = Router();
-
-// Mount routes
-router.use("/users", userRoutes);
 
 // Health check
 router.get("/health", (_req, res) => {
@@ -14,5 +11,8 @@ router.get("/health", (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount routes
+router.use("/users", userRoutes);
 
 export default router;

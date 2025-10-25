@@ -1,10 +1,10 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
-import { clerkMiddleware, requireAuth } from "@clerk/express";
+import { clerkMiddleware } from "@clerk/express";
 import { env } from "./config/env";
 import { syncUserMiddleware } from "./middleware/syncUser";
 import { errorHandler } from "./middleware/errorHandler";
-import routes from "./routes";
+import indexRoute from "./routes/indexRoute";
 import prisma from "./config/database";
 
 // Initialize Express app
@@ -61,7 +61,7 @@ app.use(
     // User is authenticated, proceed with sync
     return syncUserMiddleware(req, res, next);
   },
-  routes
+  indexRoute
 );
 
 // Error handling middleware (must be last)

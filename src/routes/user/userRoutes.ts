@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { requireAuth } from "@clerk/express";
-import prisma from "../config/database";
+import prisma from "../../config/database";
 
 const router = Router();
 
